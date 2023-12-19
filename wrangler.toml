@@ -1,0 +1,10 @@
+name = "engeybot"
+main = "src/worker.js"
+compatibility_date = "2023-12-19"
+workers_dev = true
+
+[vars]
+PPX_KEY = "PPX_KEYPPX_KEYPPX_KEYPPX_KEYPPX_KEYPPX_KEYPPX_KEYPPX_KEYPPX_KEY"
+TELEGRAM_KEY = "TELEGRAM_KEYTELEGRAM_KEYTELEGRAM_KEYTELEGRAM_KEYTELEGRAM_KEY"
+ADMIN = "@fauzaanu"
+ADMIN_CHAT_ID = 123456
