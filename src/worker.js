@@ -1,22 +1,29 @@
-const rateLimiter = {};
-
-// Limit users to 10 requests per hour
-const MAX_REQUESTS_PER_HOUR = 2;
-const RATE_LIMIT_HOURS = 1;
-
 export default {
-	fetch(request, env, ctx) {
-		return handleEvent(request, env);
-	}
+    fetch(request, env, ctx) {
+        // Separate the URL path
+        const url = new URL(request.url);
+        // Only accepting '/webhook' path
+        if (url.pathname === '/webhook') {
+            return handleEvent(request, env);
+        }
+        return new Response("Not found", { status: 404 });
+    }
 };
 
+/**
+ * Handles an event and performs necessary actions based on the request and environment variables.
+ *
+ * @param {Request} request - The incoming request object.
+ * @param {Object} env - The environment variables object.
+ * @returns {Response} - The response object.
+ */
 async function handleEvent(request, env) {
-	const { TELEGRAM_KEY, PPX_KEY, ADMIN, ADMIN_CHAT_ID } = env;
+	const { TELEGRAM_KEY, PPX_KEY } = env;
 
 	async function makePerplexityRequest(messageText) {
 		const url = 'https://api.perplexity.ai/chat/completions';
 		const params = {
-			model: 'pplx-70b-online',
+			model: 'pplx-7b-online',
 			messages: [
 				{ role: 'system', content: 'Be precise and concise.' },
 				{ role: 'user', content: messageText }
@@ -50,54 +57,40 @@ async function handleEvent(request, env) {
 		});
 	}
 
-	function checkRateLimit(userId) {
-		const currentTime = Math.floor(Date.now() / 1000);
-		if (!rateLimiter[userId]) {
-			rateLimiter[userId] = { start: currentTime, count: 0 };
-		}
-		const timeElapsed = (currentTime - rateLimiter[userId].start) / (60 * 60);
-
-		if (timeElapsed >= RATE_LIMIT_HOURS) {
-			// Reset rate limit for user after an hour
-			rateLimiter[userId] = { start: currentTime, count: 0 };
-		}
-
-		// if ADMIN is sending message, don't limit
-		if (userId === ADMIN) {
-			return true;
-		}
-
-		return rateLimiter[userId].count < MAX_REQUESTS_PER_HOUR;
-	}
 
 
 	if (request.method === 'POST') {
 		const body = await request.json();
-		const chatId = body.message.chat.id;
-		const chatType = body.message.chat.type;
-		const messageText = body.message.text;
+		console.log(body);
+		let chatId;
+		let chatType;
+		let messageText;
+
+		try {
+			chatId = body.message.chat.id;
+			chatType = body.message.chat.type;
+			messageText = body.message.text;
+		} catch (e) {
+			console.log(body);
+			return new Response('', { status: 405 });
+		}
 
 		if (chatType === 'private' || messageText.includes('#idk')) {
-
 			await sendMessageToTelegram(
 				chatId,
 				'Please wait while I think...'
-			)
-
-			// Apply rate limiting here
-			if (!checkRateLimit(chatId)) {
-				const limitMessage = 'Rate limit exceeded. Please contact ' + ADMIN;
-				await sendMessageToTelegram(chatId, limitMessage);
-				return new Response(limitMessage, { status: 429 });
-			}
+			);
 
 			let formatted_msg_text = messageText.replace('#idk', '');
 
 			const aiResponse = await makePerplexityRequest(formatted_msg_text);
 			await sendMessageToTelegram(chatId, aiResponse);
-			rateLimiter[chatId].count++;
+			return new Response('', { status: 200 });
+		} else {
+			return new Response('', { status: 405 });
 		}
-		return new Response('', { status: 200 });
+	} else if (request.method === 'GET') {
+		return new Response('', { status: 405 });
 	} else {
 		return new Response('', { status: 405 });
 	}
