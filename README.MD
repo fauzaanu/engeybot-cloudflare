@@ -1,45 +1,42 @@
 # Engeybot
 
-Engeybot is a telegram bot that integrates Telegram and the Perplexity API, running on Cloudflare Workers. With Perplexity online models the bot has access to realtime events.
+Engeybot is a Telegram bot that integrates Telegram and the Perplexity API, running on Cloudflare Workers. The bot leverages Perplexity's online models to interact with messages in real time.
 
 ## Core Features
 
 - Integration with Telegram
 - Perplexity AI API Integration
-- In-built rate limiting
 
 ## Additional Features
 
-- Responds exclusively to private chat interactions and flagged messages with `#idk` if in a group chat
-- Rate limitations are excluded for Admin users
-- Sends warning once the user reaches the request limit asking to contact admin
-- [ ] TODO: Implement a way to add these users to a list to be excluded from rate limiting with admins permission
+- Responds exclusively to private chat interactions and flagged messages with `#idk` in group chats.
 
 ## How It Works
 
-A telegram webhook must be set to the workers url. This should be a GET request to the following url
+To use the bot, a Telegram webhook needs to be set to the URL of the worker. This can be done by making a GET request to the following URL:
+
 ```http request
-https://api.telegram.org/bot<token>/setWebhook?url=<worker_url>/webhooks/telegram&drop_pending_updates=true
+https://api.telegram.org/bot /setWebhook?url=<worker_url>/webhook&drop_pending_updates=true
 ```
 
-When this webhook is set telegram will send a post request to that url whenever a message is sent to the bot.
+After setting this webhook, Telegram will send a POST request to this URL whenever a message is sent to the bot.
 
 ## Usage
 
 **Setting Environment Variables in Cloudflare Workers**
 
-Inside your Cloudflare Workers settings, you can set environment variables.
+You can set environment variables within your Cloudflare Workers settings.
 
-1. Navigate to the Workers section in the Cloudflare dashboard
-2. Click 'edit' on your Worker script
-3. In the Script area, you'll find the settings tab, click it
-4. You'll see an ENVIRONMENT VARIABLES section, this is where you can add your variables
-5. Click the 'Add variable' button and input the variable name and its corresponding value
+1. Navigate to the "Workers" section in the Cloudflare dashboard.
+2. Click 'edit' on your Worker script.
+3. Navigate to the "Settings" tab within the script area.
+4. You'll find an "Environment Variables" section where you can add your variables.
+5. Click the 'Add variable' button and input the variable name and its corresponding value.
 
-Once you have set the environment variables, they will be available in your Worker script.
+After setting these environment variables, they will be available in your worker script.
 
 ## Dependencies
 
-- Access to a Telegram bot
-- Perplexity AI API key
-- Cloudflare Workers Environment
+- Access to a Telegram bot.
+- Perplexity AI API key.
+- Cloudflare Workers Environment.
