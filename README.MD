@@ -1,5 +1,7 @@
 # Engeybot
 
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/fauzaanu/engeybot-cloudflare)
+
 Engeybot is a Telegram bot that integrates Telegram and the Perplexity API, running on Cloudflare Workers. The bot leverages Perplexity's online models to interact with messages in real time.
 
 ## Core Features
